@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarkovChain
 {
@@ -14,6 +11,47 @@ namespace MarkovChain
             var prefixCount = 2;
             var input = ReadInputFromFile("input.txt");
             var inputPairs = ParseInputPairs(input, prefixCount);
+            var output = GenerateOutput(inputPairs, prefixCount);
+
+            using (var sw = new StreamWriter("output.txt"))
+            {
+                sw.WriteLine(output);
+            }
+        }
+
+        static string GenerateOutput(Dictionary<PrefixGroup, List<string>> input, int prefixCount, int wordLimit = 0)
+        {
+            var rnd = new Random();
+            var result = new List<string>();
+            var index = -prefixCount;
+            string suffix = null;
+
+            do
+            {
+                var prefixes = new List<string>();
+                for (int i = 0; i < prefixCount; i++)
+                {
+                    if (index + i < 0)
+                    {
+                        prefixes.Add(null);
+                    }
+                    else
+                    {
+                        prefixes.Add(result[index + i]);
+                    }
+                }
+                var pGroup = new PrefixGroup(prefixes.ToArray());
+                List<string> value;
+
+                if (input.TryGetValue(pGroup, out value))
+                {
+                    suffix = value[rnd.Next(value.Count)];
+                    result.Add(suffix);
+                }
+                index++;
+            } while (suffix != null && !(result.Count > wordLimit && wordLimit > 0));
+
+            return string.Join(" ", result.ToArray());
         }
 
         static Dictionary<PrefixGroup, List<string>> ParseInputPairs(string[] input, int prefixCount)
@@ -29,7 +67,7 @@ namespace MarkovChain
 
                 for (int i = 0; i < prefixCount; i++)
                 {
-                    if (index < 0)
+                    if (index + i < 0)
                     {
                         prefixes.Add(null);
                     }

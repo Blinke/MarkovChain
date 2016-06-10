@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace MarkovChain
 {
@@ -26,6 +22,12 @@ namespace MarkovChain
             }
             return sb.ToString();
         }
+
+        public override bool Equals(object pg)
+        {
+            return GetHashCode() == ((PrefixGroup)pg).GetHashCode();
+        }
+
         public override int GetHashCode()
         {
             return ToString().GetHashCode();
